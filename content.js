@@ -93,71 +93,7 @@
 
 
 
-   unsafeWindow._downloader = _downloader = {
-  loadRes,
-  resources: [], running: false, downloads: {},
-  options: Object.assign({
-    threads: 8,
-    firstRun: true,
-    autoRename: false,
-    alert_done: true,
-    douyin_host: 1, //开始共享
-    timeout: 1000 * 60,
-    retry_max: 60,
-    autoScroll: true,
-    aria2c_port: 6800,
-    aria2c_saveTo: './downloads'
-  }, GM_getValue('config', {})),
-  saveOptions(opts = {}){
-    opts = Object.assign(this.options, opts)
-    GM_setValue('config', opts)
-  },
-  _aria_callbacks: [],
-  bindAria2Event(method, gid, callback){
-      this._aria_callbacks.push({
-          method: 'aria2.' + method,
-          gid, callback
-      })
-  },
-  enableAria2c(enable){
-      if(enable){
-          if(!this.aria2c){
-              loadRes(['https://www.unpkg.com/httpclient@0.1.0/bundle.js', 'https://www.unpkg.com/aria2@2.0.1/bundle.js'], () => {
-                  this.writeLog('主机掉线，已断开链接', 'ARIA2C')
-                  var aria2 = this.aria2c = new unsafeWindow.Aria2({
-                      host: 'localhost',
-                      port: this.options.aria2c_port,
-                      secure: false,
-                      secret: '',
-                      path: '/jsonrpc',
-                      jsonp: false
-                  })
-                  aria2.open().then(() => {
-                      aria2.opening = true
-                      this.writeLog('aria2成功连接！', 'ARIA2C')
-                      $('[data-for="useAria2c"]')[0].checked = true
-                  })
-                  aria2.onclose =  () => {
-                      aria2.opening = false
-                      this.writeLog('aria2失去连接！', 'ARIA2C')
-                      $('[data-for="useAria2c"]')[0].checked = false
-                  }
-                  aria2.onmessage = ({ method: _method, id, result, params }) => {
-                      console.log({_method, result, params})
-                      switch (_method) {
-                          // case 'aria2.onDownloadError': // 无网络
-                          case 'aria2.onDownloadComplete':
-                              for (let i = this._aria_callbacks.length - 1; i >= 0; i--) {
-                                  let { gid, method, callback } = this._aria_callbacks[i]
-                                  if (gid == params[0].gid) {
-                                      if (method == _method) { // 如果gid有任何一个事件成功了则删除其他事件绑定
-                                          callback()
-                                      }
-                                      this._aria_callbacks.splice(i, 1)
-                                  }
-                              }
-                              return
-
+   
     // 点击启动/暂停按钮后的操作
 startPauseButton.addEventListener('click', function() {
   const interval = parseInt(input.value, 10); 
