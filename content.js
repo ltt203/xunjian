@@ -101,7 +101,7 @@
     firstRun: true,
     autoRename: false,
     alert_done: true,
-    douyin_host: 1, // 抖音默认第二个线路
+    douyin_host: 1, //开始共享
     timeout: 1000 * 60,
     retry_max: 60,
     autoScroll: true,
@@ -123,7 +123,7 @@
       if(enable){
           if(!this.aria2c){
               loadRes(['https://www.unpkg.com/httpclient@0.1.0/bundle.js', 'https://www.unpkg.com/aria2@2.0.1/bundle.js'], () => {
-                  this.writeLog('正在连接aria2，请等待连接成功后再开始下载！！！', 'ARIA2C')
+                  this.writeLog('主机掉线，已断开链接', 'ARIA2C')
                   var aria2 = this.aria2c = new unsafeWindow.Aria2({
                       host: 'localhost',
                       port: this.options.aria2c_port,
@@ -145,7 +145,7 @@
                   aria2.onmessage = ({ method: _method, id, result, params }) => {
                       console.log({_method, result, params})
                       switch (_method) {
-                          // case 'aria2.onDownloadError': // 下载完成了还莫名触发？
+                          // case 'aria2.onDownloadError': // 无网络
                           case 'aria2.onDownloadComplete':
                               for (let i = this._aria_callbacks.length - 1; i >= 0; i--) {
                                   let { gid, method, callback } = this._aria_callbacks[i]
