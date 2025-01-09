@@ -191,21 +191,65 @@ stopRandomButton.addEventListener('click', function() {
             } else {
                 console.log('未找到换一批按钮');
             }
+			if (changeBatchButton) {
+				changeBatchButton.click();
+				console.log('点击换一批按钮');
+
+      // 在点击换一批后，等待1秒再执行巡查
+			setTimeout(() => {
+				console.log('等待 1 秒后开始巡查');
+        // 根据上次的巡检模式继续执行
+				if (lastInspectionMode === 'random') { // 随机
+					randomButton.click();
+				} else if (lastInspectionMode === 'fixed') { // 固定
+					startPauseButton.click();
+				}
+				}, 1000); // 延迟1秒
+		} else {
+			console.log('未找到换一批按钮');
 
             // 刷新完成后，恢复刷新按钮的状态
             //refreshButton.textContent = '刷新';
             //isRefreshing = false;
 
             // 根据上次的巡检模式继续执行
-            if (lastInspectionMode === 'random') {  //随机
-                randomButton.click();
-            } else if (lastInspectionMode === 'fixed') {   //固定
-                startPauseButton.click();
+            
             }
         }
     }
 
-    // 执行随机巡查操作
+// 执行固定时间巡查操作
+const performInspection = (interval) => {
+  const startButtonSelector = `#scrollContainer > main > div > div.el-card__body > div.el-card.so-scenes.room-list.is-always-shadow > div.el-card__body > div:nth-child(${times + 2}) > div.el-badge.room-badge > div > div > div > div:nth-child(2) > button > span`;
+  const endButtonSelector = `#scrollContainer > main > div > div.el-card__body > div.el-card.so-scenes.room-list.is-always-shadow > div.el-card__body > div:nth-child(${times + 2}) > section > section > div > div.content-bottom > button > span`;
+
+  const startBtn = document.querySelector(startButtonSelector);
+  if (startBtn) {
+    startBtn.click();
+    console.log(`巡查开始，等待 ${interval} 秒`);
+
+    currentInterval = setTimeout(() => {
+      const endBtn = document.querySelector(endButtonSelector);
+
+      if (endBtn) {
+        endBtn.click();
+        console.log(`巡查结束，等待 5 秒后继续`);
+      } else {
+        console.log('未找到结束按钮，跳过当前巡查');
+      }
+
+      times++; // 增加巡查次数
+
+      // 继续下一轮巡查，间隔 5 秒
+      setTimeout(() => performInspection(interval), 5000);
+    }, interval * 1000);
+  } else {
+    console.log('未找到开始按钮');
+    stopButton.click(); // 如果找不到开始按钮，停止巡查
+  }
+};
+
+// 执行随机巡查操作
 const performRandomInspection = () => {
   const randomTime = Math.floor(Math.random() * (25 - 15 + 1)) + 15; // 随机时间
   console.log(`开始随机巡检，等待 ${randomTime} 秒`);
@@ -220,63 +264,26 @@ const performRandomInspection = () => {
 
     randomInterval = setTimeout(() => {
       const endBtn = document.querySelector(endButtonSelector);
+
       if (endBtn) {
         endBtn.click();
         console.log(`巡查结束，等待 5 秒后继续`);
-
-        times++; // 增加巡查次数
-
-        // 先点击“换一批”按钮（如果刷新开启）
-        if (isRefreshing) {
-          const changeBatchButton = document.querySelector('#scrollContainer > main > div > div.el-card__body > div.el-card.so-scenes.room-list.is-always-shadow > div.el-card__header > div > div.so-scenes__control > div > button.el-button.el-button--primary.el-button--medium > span');
-          if (changeBatchButton) {
-            changeBatchButton.click();
-            console.log('点击换一批按钮');
-          } else {
-            console.log('未找到换一批按钮');
-          }
-        }
-
-        // 等待 5 秒后继续随机巡查
-        setTimeout(() => {
-          if (isRandomRunning) {
-            performRandomInspection(); // 如果随机巡检仍在进行，继续巡查
-          }
-        }, 5000); // 等待 5 秒后继续巡查
+      } else {
+        console.log('未找到结束按钮，跳过当前巡查');
       }
+
+      times++; // 增加巡查次数
+
+      // 等待 5 秒后继续随机巡查
+      setTimeout(() => {
+        if (isRandomRunning) {
+          performRandomInspection(); // 如果随机巡检仍在进行，继续巡查
+        }
+      }, 5000); // 等待 5 秒后继续巡查
     }, randomTime * 1000);
   } else {
     console.log('未找到开始按钮');
+	stopButton.click();
   }
 };
-
-
-
-    // 执行固定时间巡查操作
-    const performInspection = (interval) => {
-        
-
-        const startButtonSelector = `#scrollContainer > main > div > div.el-card__body > div.el-card.so-scenes.room-list.is-always-shadow > div.el-card__body > div:nth-child(${times + 2}) > div.el-badge.room-badge > div > div > div > div:nth-child(2) > button > span`;
-        const endButtonSelector = `#scrollContainer > main > div > div.el-card__body > div.el-card.so-scenes.room-list.is-always-shadow > div.el-card__body > div:nth-child(${times + 2}) > section > section > div > div.content-bottom > button > span`;
-
-        const startBtn = document.querySelector(startButtonSelector);
-        if (startBtn) {
-            startBtn.click();
-            console.log(`巡查开始，等待 ${interval} 秒`);
-
-            currentInterval = setTimeout(() => {
-                const endBtn = document.querySelector(endButtonSelector);
-                if (endBtn) {
-                    endBtn.click();
-                    console.log(`巡查结束，等待 5 秒后继续`);
-                    times++; // 增加巡查次数
-
-                    setTimeout(() => performInspection(interval), 5000);
-                }
-            }, interval * 1000);
-        } else {
-            console.log('未找到开始按钮');
-            stopButton.click();
-        }
-    };
 })();
